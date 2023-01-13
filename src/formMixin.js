@@ -11,7 +11,9 @@ export default {
 				disabled: this.fieldDisabled(field),
 				readonly: this.fieldReadonly(field),
 				featured: this.fieldFeatured(field),
-				required: this.fieldRequired(field)
+				required: this.fieldRequired(field),
+				collapsed: this.fieldCollapsed(field),
+				collapsible: this.fieldCollapsible(field)
 			};
 
 			if (isArray(field.styleClasses)) {
@@ -38,6 +40,21 @@ export default {
 
 			return field.disabled;
 		},
+		fieldCollapsed(field) {
+			if (isFunction(field.collapsed)) return field.collapsed.call(this, this.model, field, this);
+
+			if (isNil(field.collapsed)) {
+				field.collapsed = false;
+				// return false; 
+			}
+
+			return field.collapsed;
+		},
+		fieldCollapsible(field) {
+			if (isNil(field.collapsible)) return false;
+
+			return field.collapsible;
+		},
 		// Get readonly prop of field
 		fieldReadonly(field) {
 			if (isFunction(field.readonly)) return field.readonly.call(this, this.model, field, this);
@@ -61,6 +78,25 @@ export default {
 			if (isNil(field.required)) return false;
 
 			return field.required;
-		}
+		},
+		// Get visible prop of field
+		fieldVisible(field) {
+			if (isFunction(field.visible)) return field.visible.call(this, this.model, field, this);
+
+			if (isNil(field.visible)) return true;
+
+			return field.visible;
+		},
+		// onToggle event handler
+		emitToggleCollapsed(field) {
+			if (field.collapsible) {
+				const state = !this.fieldCollapsed(field);
+
+				if ( !isFunction(field.collapsed)) {
+					field.collapsed = state;
+				}
+				this.$emit("toggle-collapsed", { field: field, collapsed: state });				
+			}
+		},		
 	}
 };

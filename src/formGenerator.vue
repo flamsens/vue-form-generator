@@ -5,10 +5,11 @@ div.vue-form-generator(v-if='schema != null')
 			form-group(v-if='fieldVisible(field)', :vfg="vfg", :field="field", :errors="errors", :model="model", :options="options", @validated="onFieldValidated", @model-updated="onModelUpdated")
 
 	template(v-for='group in groups')
-		fieldset(:is='tag', :class='getFieldRowClasses(group)')
-			legend(v-if='group.legend') {{ group.legend }}
-			template(v-for='field in group.fields')
-				form-group(v-if='fieldVisible(field)', :vfg="vfg", :field="field", :errors="errors", :model="model", :options="options", @validated="onFieldValidated", @model-updated="onModelUpdated")
+		fieldset(:is='tag', :class='getFieldRowClasses(group)', v-if="fieldVisible(group)" )
+			legend(v-if='group.legend', @click="emitToggleCollapsed(group)") {{ group.legend }}
+				span(v-if='fieldCollapsible(group)', class="icon icon-toggle-collapsed")
+			template(v-for='field in group.fields' _v-if="!fieldCollapsed(group)")
+				form-group(v-if='fieldVisible(field)', :vfg="vfg", :field="field", :errors="errors", :model="model", :options="options", @validated="onFieldValidated", @model-updated="onModelUpdated", v-on="$listeners")
 </template>
 
 <script>
@@ -122,15 +123,6 @@ export default {
 	},
 
 	methods: {
-		// Get visible prop of field
-		fieldVisible(field) {
-			if (isFunction(field.visible)) return field.visible.call(this, this.model, field, this);
-
-			if (isNil(field.visible)) return true;
-
-			return field.visible;
-		},
-
 		// Child field executed validation
 		onFieldValidated(res, errors, field) {
 			// Remove old errors for this field

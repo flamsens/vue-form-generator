@@ -1,11 +1,12 @@
 <template>
 	<div class="form-group" :class="getFieldRowClasses(field)">
-		<label v-if="fieldTypeHasLabel(field)" :for="getFieldID(field)" :class="field.labelClasses">
+		<label v-if="fieldTypeHasLabel(field)" :for="getFieldID(field)" :class="field.labelClasses" @click="emitToggleCollapsed(field)">
 			<span v-html="field.label"></span>
 			<span v-if='field.help' class="help">
 				<i class="icon"></i>
 				<div class="helpText" v-html='field.help'></div>
 			</span>
+			<span v-if="fieldCollapsible(field)" class="icon icon-toggle-collapsed" @click="emitToggleCollapsed(field)"></span>
 		</label>
 
 		<div class="field-wrap">
